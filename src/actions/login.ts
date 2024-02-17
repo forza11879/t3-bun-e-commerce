@@ -6,17 +6,17 @@ import { AuthError } from "next-auth";
 // import { db } from "@/lib/db";
 import { signIn } from "~/server/auth";
 import { LoginSchema } from "~/schemas";
-// import { getUserByEmail } from "@/data/user";
+import { getUserByEmail } from "~/server/services/user";
 // import { getTwoFactorTokenByEmail } from "@/data/two-factor-token";
-// import {
-//   sendVerificationEmail,
-//   sendTwoFactorTokenEmail,
-// } from "@/lib/mail";
+import {
+  sendVerificationEmail,
+  // sendTwoFactorTokenEmail,
+} from "~/lib/mail";
 import { DEFAULT_LOGIN_REDIRECT } from "~/routes";
-// import {
-//   generateVerificationToken,
-//   generateTwoFactorToken
-// } from "@/lib/tokens";
+import {
+  generateVerificationToken,
+  // generateTwoFactorToken
+} from "~/lib/tokens";
 // import {
 //   getTwoFactorConfirmationByUserId
 // } from "@/data/two-factor-confirmation";
@@ -33,24 +33,24 @@ export const login = async (
 
   const { email, password, code } = validatedFields.data;
 
-  // const existingUser = await getUserByEmail(email);
+  const existingUser = await getUserByEmail(email);
 
-  // if (!existingUser?.email || !existingUser.password) {
-  //   return { error: "Email does not exist!" }
-  // }
+  if (!existingUser?.email || !existingUser.password) {
+    return { error: "Email does not exist!" }
+  }
 
-  // if (!existingUser.emailVerified) {
-  //   const verificationToken = await generateVerificationToken(
-  //     existingUser.email,
-  //   );
+  if (!existingUser.emailVerified) {
+    const verificationToken = await generateVerificationToken(
+      existingUser.email,
+    );
 
-  //   await sendVerificationEmail(
-  //     verificationToken.email,
-  //     verificationToken.token,
-  //   );
+    await sendVerificationEmail(
+      verificationToken.email,
+      verificationToken.token,
+    );
 
-  //   return { success: "Confirmation email sent!" };
-  // }
+    return { success: "Confirmation email sent!" };
+  }
 
   // if (existingUser.isTwoFactorEnabled && existingUser.email) {
   //   if (code) {
