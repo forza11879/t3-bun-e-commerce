@@ -66,27 +66,48 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    password      String?
-    role          UserRole  @default(USER)
-    accounts      Account[]
-    sessions      Session[]
-    posts         Post[]
+    id                    String                 @id @default(cuid())
+    name                  String?
+    email                 String?                @unique
+    emailVerified         DateTime?
+    image                 String?
+    password              String?
+    role                  UserRole               @default(USER)
+    accounts              Account[]
+    sessions              Session[]
+    posts                 Post[]
+    isTwoFactorEnabled    Boolean                @default(false)
+    twoFactorConfirmation TwoFactorConfirmation?
 }
 
-// model VerificationToken {
-//     identifier String
-//     token      String   @unique
-//     expires    DateTime
+model TwoFactorConfirmation {
+    id String @id @default(cuid())
 
-//     @@unique([identifier, token])
-// }
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([userId])
+}
 
 model VerificationToken {
+    id      String   @id @default(cuid())
+    email   String
+    token   String   @unique
+    expires DateTime
+
+    @@unique([email, token])
+}
+
+model PasswordResetToken {
+    id      String   @id @default(cuid())
+    email   String
+    token   String   @unique
+    expires DateTime
+
+    @@unique([email, token])
+}
+
+model TwoFactorToken {
     id      String   @id @default(cuid())
     email   String
     token   String   @unique
